@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
-
-type StatusType = "ativo" | "transferencia" | "baixado" | "extraviado";
+import { StatusType } from "@/data/inventoryData";
 
 interface StatusBadgeProps {
   status: StatusType;

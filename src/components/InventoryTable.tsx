@@ -3,30 +3,42 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import StatusBadge from "./StatusBadge";
 import { AlertTriangle } from "lucide-react";
+import { inventoryData, formatCurrency, StatusType } from "@/data/inventoryData";
 
-interface InventoryItem {
-  status: "ativo" | "transferencia" | "baixado" | "extraviado";
+interface InventorySummary {
+  status: StatusType;
   localizacao: string;
   valor: number;
   responsavel: string | null;
   pendencias: boolean;
 }
 
-const inventoryData: InventoryItem[] = [
-  { status: "ativo", localizacao: "Prédio Central", valor: 2800000, responsavel: "Carlos Souza", pendencias: false },
-  { status: "transferencia", localizacao: "Almoxarifado", valor: 400000, responsavel: "Mariana Lima", pendencias: true },
-  { status: "baixado", localizacao: "Arquivo Inativo", valor: 300000, responsavel: null, pendencias: false },
-  { status: "extraviado", localizacao: "Desconhecida", valor: 60000, responsavel: null, pendencias: true },
-];
+// Group inventory by status for summary view
+const getInventorySummary = (): InventorySummary[] => {
+  const statusGroups: Record<StatusType, InventorySummary> = {
+    ativo: { status: "ativo", localizacao: "Prédio Central", valor: 0, responsavel: null, pendencias: false },
+    transferencia: { status: "transferencia", localizacao: "Almoxarifado", valor: 0, responsavel: null, pendencias: false },
+    baixado: { status: "baixado", localizacao: "Arquivo Inativo", valor: 0, responsavel: null, pendencias: false },
+    extraviado: { status: "extraviado", localizacao: "Desconhecida", valor: 0, responsavel: null, pendencias: false },
+  };
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
+  inventoryData.forEach((item) => {
+    const group = statusGroups[item.status];
+    group.valor += item.valor;
+    if (item.responsavel && !group.responsavel) {
+      group.responsavel = item.responsavel;
+    }
+    if (item.pendencias) {
+      group.pendencias = true;
+    }
+  });
+
+  return Object.values(statusGroups);
 };
 
 const InventoryTable = () => {
+  const summaryData = getInventorySummary();
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -57,7 +69,7 @@ const InventoryTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {inventoryData.map((item, index) => (
+          {summaryData.map((item, index) => (
             <TableRow key={index} className="border-b border-border/50">
               <TableCell className="py-3">
                 <div className="w-36">

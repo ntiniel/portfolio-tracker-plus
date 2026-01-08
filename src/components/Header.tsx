@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Itens", href: "/itens" },
+  { label: "Reconciliação", href: "/reconciliacao" },
   { label: "Auditoria", href: "#" },
   { label: "Relatórios", href: "#" },
-  { label: "Exportar Dados", href: "#" },
 ];
 
 const Header = () => {

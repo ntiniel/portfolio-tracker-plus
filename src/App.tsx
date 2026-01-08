@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Itens from "./pages/Itens";
 import ItemDetail from "./pages/ItemDetail";
 import Reconciliacao from "./pages/Reconciliacao";
+import CadastrarEmpenhados from "./pages/CadastrarEmpenhados";
+import CadastrarRegistroBens from "./pages/CadastrarRegistroBens";
+import CadastrarIncorporacao from "./pages/CadastrarIncorporacao";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/itens" element={<Itens />} />
           <Route path="/itens/:id" element={<ItemDetail />} />
           <Route path="/reconciliacao" element={<Reconciliacao />} />
+          <Route path="/cadastrar-empenhados" element={<CadastrarEmpenhados />} />
+          <Route path="/cadastrar-registro-bens" element={<CadastrarRegistroBens />} />
+          <Route path="/cadastrar-incorporacao" element={<CadastrarIncorporacao />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

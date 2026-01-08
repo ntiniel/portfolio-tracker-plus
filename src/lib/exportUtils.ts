@@ -10,7 +10,8 @@ export const exportToExcel = (data: InventoryItem[], filename: string = "inventa
     "Descrição": item.descricao,
     "Status": statusLabels[item.status],
     "Localização": item.localizacao,
-    "Valor (R$)": item.valor,
+    "Valor Aquisição (R$)": item.valor,
+    "Valor Atual (R$)": item.valorAtual,
     "Responsável": item.responsavel || "-",
     "Pendências": item.pendencias ? "Sim" : "Não",
     "Data Aquisição": formatDate(item.dataAquisicao),
@@ -27,7 +28,8 @@ export const exportToExcel = (data: InventoryItem[], filename: string = "inventa
     { wch: 35 }, // Descrição
     { wch: 18 }, // Status
     { wch: 20 }, // Localização
-    { wch: 15 }, // Valor
+    { wch: 18 }, // Valor Aquisição
+    { wch: 15 }, // Valor Atual
     { wch: 20 }, // Responsável
     { wch: 12 }, // Pendências
     { wch: 15 }, // Data Aquisição
@@ -82,8 +84,8 @@ export const exportToPDF = (data: InventoryItem[], filename: string = "inventari
     statusLabels[item.status],
     item.localizacao,
     formatCurrency(item.valor),
+    formatCurrency(item.valorAtual),
     item.responsavel || "-",
-    item.pendencias ? "Sim" : "Não",
     formatDate(item.dataAquisicao),
   ]);
 
@@ -96,9 +98,9 @@ export const exportToPDF = (data: InventoryItem[], filename: string = "inventari
         "Descrição",
         "Status",
         "Localização",
-        "Valor",
+        "Valor Aquisição",
+        "Valor Atual",
         "Responsável",
-        "Pendências",
         "Data Aquisição",
       ],
     ],
@@ -119,12 +121,12 @@ export const exportToPDF = (data: InventoryItem[], filename: string = "inventari
     },
     columnStyles: {
       0: { halign: "center", cellWidth: 25 },
-      1: { cellWidth: 50 },
-      2: { halign: "center", cellWidth: 30 },
-      3: { cellWidth: 30 },
+      1: { cellWidth: 45 },
+      2: { halign: "center", cellWidth: 28 },
+      3: { cellWidth: 28 },
       4: { halign: "right", cellWidth: 25 },
-      5: { cellWidth: 30 },
-      6: { halign: "center", cellWidth: 20 },
+      5: { halign: "right", cellWidth: 25 },
+      6: { cellWidth: 28 },
       7: { halign: "center", cellWidth: 25 },
     },
     margin: { left: 14, right: 14 },
@@ -133,7 +135,8 @@ export const exportToPDF = (data: InventoryItem[], filename: string = "inventari
   // Add summary section
   const finalY = (doc as any).lastAutoTable.finalY + 10;
   
-  const totalValue = data.reduce((sum, item) => sum + item.valor, 0);
+  const totalValueAquisicao = data.reduce((sum, item) => sum + item.valor, 0);
+  const totalValueAtual = data.reduce((sum, item) => sum + item.valorAtual, 0);
   const activeItems = data.filter((item) => item.status === "ativo").length;
   const pendingItems = data.filter((item) => item.pendencias).length;
 
@@ -143,9 +146,10 @@ export const exportToPDF = (data: InventoryItem[], filename: string = "inventari
   
   doc.setFontSize(10);
   doc.text(`• Total de Itens: ${data.length}`, 14, finalY + 7);
-  doc.text(`• Valor Total: ${formatCurrency(totalValue)}`, 14, finalY + 14);
-  doc.text(`• Itens Ativos: ${activeItems}`, 14, finalY + 21);
-  doc.text(`• Itens com Pendências: ${pendingItems}`, 14, finalY + 28);
+  doc.text(`• Valor Total (Aquisição): ${formatCurrency(totalValueAquisicao)}`, 14, finalY + 14);
+  doc.text(`• Valor Total (Atual): ${formatCurrency(totalValueAtual)}`, 14, finalY + 21);
+  doc.text(`• Itens Ativos: ${activeItems}`, 14, finalY + 28);
+  doc.text(`• Itens com Pendências: ${pendingItems}`, 14, finalY + 35);
 
   // Add footer
   const pageCount = doc.getNumberOfPages();

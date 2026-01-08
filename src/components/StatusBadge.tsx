@@ -1,38 +1,24 @@
 import { cn } from "@/lib/utils";
-import { StatusType } from "@/data/inventoryData";
+import { StatusType, statusLabels, statusColors } from "@/data/inventoryData";
 
 interface StatusBadgeProps {
   status: StatusType;
+  size?: "sm" | "md";
 }
 
-const statusConfig: Record<StatusType, { label: string; className: string }> = {
-  ativo: {
-    label: "Ativo",
-    className: "bg-emerald-500 text-primary-foreground",
-  },
-  transferencia: {
-    label: "Em Transferência",
-    className: "bg-orange-400 text-primary-foreground",
-  },
-  baixado: {
-    label: "Baixado",
-    className: "bg-amber-400 text-primary-foreground",
-  },
-  extraviado: {
-    label: "Extraviado",
-    className: "bg-purple-500 text-primary-foreground",
-  },
-};
+const StatusBadge = ({ status, size = "md" }: StatusBadgeProps) => {
+  const label = statusLabels[status];
+  const colorClass = statusColors[status];
 
-const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const config = statusConfig[status];
-  
   return (
-    <span className={cn(
-      "inline-flex items-center px-4 py-2 rounded-md text-sm font-medium w-full justify-center",
-      config.className
-    )}>
-      {config.label}
+    <span
+      className={cn(
+        "inline-flex items-center justify-center rounded-md font-medium text-primary-foreground",
+        colorClass,
+        size === "sm" ? "px-2 py-1 text-xs" : "px-4 py-2 text-sm w-full"
+      )}
+    >
+      {label}
     </span>
   );
 };

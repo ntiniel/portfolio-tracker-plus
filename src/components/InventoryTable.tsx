@@ -20,6 +20,8 @@ const getInventorySummary = (): InventorySummary[] => {
     transferencia: { status: "transferencia", localizacao: "Almoxarifado", valor: 0, responsavel: null, pendencias: false },
     baixado: { status: "baixado", localizacao: "Arquivo Inativo", valor: 0, responsavel: null, pendencias: false },
     extraviado: { status: "extraviado", localizacao: "Desconhecida", valor: 0, responsavel: null, pendencias: false },
+    manutencao: { status: "manutencao", localizacao: "Oficina", valor: 0, responsavel: null, pendencias: false },
+    cedido: { status: "cedido", localizacao: "Externo", valor: 0, responsavel: null, pendencias: false },
   };
 
   inventoryData.forEach((item) => {
@@ -33,7 +35,8 @@ const getInventorySummary = (): InventorySummary[] => {
     }
   });
 
-  return Object.values(statusGroups);
+  // Only return groups that have items
+  return Object.values(statusGroups).filter(group => group.valor > 0);
 };
 
 const InventoryTable = () => {

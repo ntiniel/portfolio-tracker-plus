@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Gift } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Plus, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CadastrarIncorporacao = () => {
@@ -14,7 +14,7 @@ const CadastrarIncorporacao = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="p-6 max-w-4xl mx-auto">
+      <main className="p-6 max-w-6xl mx-auto">
         <Button 
           variant="ghost" 
           onClick={() => navigate("/")}
@@ -25,65 +25,215 @@ const CadastrarIncorporacao = () => {
         </Button>
 
         <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Gift className="h-6 w-6 text-primary" />
-              <CardTitle className="text-2xl">Cadastrar Incorporação</CardTitle>
-            </div>
-            <p className="text-muted-foreground">
-              Registre bens recebidos por doação ou transferência
-            </p>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl">Incorporações</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="numeroPatrimonioInc">Nº Patrimônio</Label>
-                <Input id="numeroPatrimonioInc" placeholder="Ex: PAT-001" />
+            {/* Seção de Patrimônio */}
+            <div className="flex flex-wrap items-end gap-4 pb-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Patrimônio Inicial</Label>
+                  <Input 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent w-32"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="descricaoInc">Descrição do Bem</Label>
-                <Input id="descricaoInc" placeholder="Descrição do bem doado" />
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Patrimônio Final</Label>
+                  <Input 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent w-32"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="doador">Doador/Origem</Label>
-                <Input id="doador" placeholder="Nome do doador ou órgão" />
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Quantidade de Objetos</Label>
+                  <Input 
+                    type="number"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent w-24"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="dataIncorporacao">Data de Incorporação</Label>
-                <Input id="dataIncorporacao" type="date" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="valorEstimado">Valor Estimado (R$)</Label>
-                <Input id="valorEstimado" type="number" step="0.01" placeholder="0,00" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="categoriaInc">Categoria</Label>
-                <Input id="categoriaInc" placeholder="Ex: Mobiliário, Veículo" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="documentoDoacao">Documento de Doação</Label>
-                <Input id="documentoDoacao" placeholder="Nº do termo de doação" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="localizacaoInc">Localização</Label>
-                <Input id="localizacaoInc" placeholder="Setor/Departamento destino" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="estadoInc">Estado de Conservação</Label>
-                <Input id="estadoInc" placeholder="Ex: Novo, Bom, Regular" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tipoIncorporacao">Tipo de Incorporação</Label>
-                <Input id="tipoIncorporacao" placeholder="Doação, Transferência, Permuta" />
+              <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
+                PESQUISAR PATRIMÔNIO
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Equipamento */}
+            <div className="flex items-start gap-2">
+              <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-3" />
+              <div className="flex-1 space-y-1">
+                <Input 
+                  placeholder="Equipamento" 
+                  className="border border-border rounded"
+                />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="observacoesInc">Observações</Label>
-              <Textarea id="observacoesInc" placeholder="Detalhes sobre a doação ou incorporação..." />
+
+            {/* Linha: Mês de Cadastro, Número da Pasta, Receb. N.F, Dia Lançamento */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Mês de Cadastro</Label>
+                  <Input 
+                    placeholder="---------- de ----" 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Número da Pasta</Label>
+                  <Input 
+                    type="date"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Receb. N.F/Liquidação</Label>
+                  <Input 
+                    type="date"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Dia Lançamento</Label>
+                  <Input 
+                    type="date"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex gap-4">
-              <Button className="flex-1">Salvar Incorporação</Button>
-              <Button variant="outline" onClick={() => navigate("/")}>Cancelar</Button>
+
+            {/* Linha: Valor, Data NF, Número NF, Doador */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Valor R$</Label>
+                  <Input 
+                    type="number"
+                    step="0.01"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data da Nota Fiscal</Label>
+                  <Input 
+                    type="date"
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Número da Nota Fiscal</Label>
+                  <Input 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Doador</Label>
+                  <Input 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Linha: Número do Cecam, Secretaria, Local */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Número do Cecam</Label>
+                  <Input 
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-transparent"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Secretaria</Label>
+                  <Input 
+                    readOnly
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-muted/50"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <Label className="text-sm text-muted-foreground">Local</Label>
+                  <Input 
+                    readOnly
+                    className="border-0 border-b border-border rounded-none focus-visible:ring-0 bg-muted/50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Conta Categoria */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 max-w-md space-y-1">
+                <Select>
+                  <SelectTrigger className="border border-border rounded">
+                    <SelectValue placeholder="CONTA CATEGORIA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="equipamentos">Equipamentos</SelectItem>
+                    <SelectItem value="mobiliario">Mobiliário</SelectItem>
+                    <SelectItem value="veiculos">Veículos</SelectItem>
+                    <SelectItem value="informatica">Informática</SelectItem>
+                    <SelectItem value="outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Botões de Ação */}
+            <div className="flex flex-wrap gap-3 pt-6 border-t border-border">
+              <Button variant="outline" className="gap-2 border-muted-foreground/30">
+                LIMPAR
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" className="gap-2 border-muted-foreground/30">
+                SALVAR
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" className="gap-2 border-muted-foreground/30" disabled>
+                EDITAR
+              </Button>
+              <Button variant="outline" className="gap-2 border-muted-foreground/30" disabled>
+                NÃO EDITA EQUIPAMENTO
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" className="gap-2 border-muted-foreground/30" disabled>
+                EXCLUIR
+              </Button>
             </div>
           </CardContent>
         </Card>

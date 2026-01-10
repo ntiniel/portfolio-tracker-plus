@@ -122,16 +122,13 @@ const FloatingPdfViewer = ({ isOpen, onClose, pdfUrl }: FloatingPdfViewerProps) 
 
       {/* PDF Content */}
       <div className="w-full h-[calc(100%-40px)] overflow-auto bg-muted/20">
-        <iframe
-          src={pdfUrl}
-          className="w-full h-full border-0"
+        <embed
+          src={`${pdfUrl}#zoom=${zoom}`}
+          type="application/pdf"
+          className="w-full h-full"
           style={{
-            transform: `scale(${zoom / 100})`,
-            transformOrigin: 'top left',
-            width: `${100 / (zoom / 100)}%`,
-            height: `${100 / (zoom / 100)}%`
+            minHeight: '100%'
           }}
-          title="PDF Viewer"
         />
       </div>
 

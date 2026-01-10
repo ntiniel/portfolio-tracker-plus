@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Package, Gift, ArrowRight } from "lucide-react";
+import { FileText, Package, Gift, ArrowRight, FileSpreadsheet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -24,7 +24,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Cadastrar Empenhados */}
           <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 bg-card/80 backdrop-blur-sm animate-fade-in">
             <CardContent className="p-8 text-center">
@@ -79,6 +79,26 @@ const Index = () => {
                 variant="secondary"
                 className="w-full group-hover:shadow-md transition-all duration-300"
                 onClick={() => navigate("/cadastrar-incorporacao")}
+              >
+                Acessar
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Conciliação */}
+          <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 bg-card/80 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <CardContent className="p-8 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <FileSpreadsheet className="h-10 w-10 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold mb-3 text-foreground">Conciliação</h2>
+              <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+                Visualize e gerencie todos os registros de conciliação em tabela
+              </p>
+              <Button 
+                className="w-full group-hover:shadow-md transition-all duration-300 bg-primary hover:bg-primary/90"
+                onClick={() => navigate("/conciliacao")}
               >
                 Acessar
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

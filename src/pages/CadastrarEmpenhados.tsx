@@ -4,16 +4,132 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, User, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, User, ChevronRight, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
+import FloatingPdfViewer from "@/components/FloatingPdfViewer";
+
+interface FormData {
+  numeroEmpenho: string;
+  valor: string;
+  processoAdm: string;
+  mesLancamento: string;
+  mesLiquidado: string;
+  valorBaixa: string;
+  condicao: string;
+  reempenhado: string;
+  fornecedor: string;
+  dataEmpenho: string;
+  contaCategoria: string;
+  contrato: string;
+  observacao: string;
+}
 
 const CadastrarEmpenhados = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isPdfOpen, setIsPdfOpen] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  
+  const [formData, setFormData] = useState<FormData>({
+    numeroEmpenho: '',
+    valor: '',
+    processoAdm: '',
+    mesLancamento: '',
+    mesLiquidado: '',
+    valorBaixa: '',
+    condicao: '',
+    reempenhado: '',
+    fornecedor: '',
+    dataEmpenho: new Date().toISOString().split('T')[0],
+    contaCategoria: '',
+    contrato: '',
+    observacao: ''
+  });
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleLimpar = () => {
-    // Reset form logic would go here
+    setFormData({
+      numeroEmpenho: '',
+      valor: '',
+      processoAdm: '',
+      mesLancamento: '',
+      mesLiquidado: '',
+      valorBaixa: '',
+      condicao: '',
+      reempenhado: '',
+      fornecedor: '',
+      dataEmpenho: new Date().toISOString().split('T')[0],
+      contaCategoria: '',
+      contrato: '',
+      observacao: ''
+    });
+    toast.success('Formulário limpo!');
+  };
+
+  const handleSalvar = () => {
+    if (!formData.numeroEmpenho) {
+      toast.error('Por favor, informe o número do empenho');
+      return;
+    }
+
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    
+    const newRecord = {
+      numeroEmpenho: formData.numeroEmpenho,
+      bensEmpenhados: '',
+      valores: formData.valor,
+      dataEmpenho: formData.dataEmpenho,
+      processoAdm: formData.processoAdm,
+      valorBaixa: formData.valorBaixa,
+      saldoNaoLiquidados: '',
+      baixaDataNota: '',
+      contaCategoria: formData.contaCategoria,
+      observacao: formData.observacao,
+      dataLancamento: formData.mesLancamento,
+      dataLiquidado: formData.mesLiquidado,
+      condicao: formData.condicao,
+      dataLancamentoPlanilha: dataAtual,
+      prioridadeAnteriores: '',
+      valorBaixaReal: '',
+      numeroContrato: formData.contrato,
+      numeroReempenho: formData.reempenhado
+    };
+
+    // Get existing records from localStorage
+    const existingData = localStorage.getItem('conciliacao_data');
+    let records = [];
+    
+    if (existingData) {
+      try {
+        records = JSON.parse(existingData);
+      } catch {
+        records = [];
+      }
+    }
+
+    records.push(newRecord);
+    localStorage.setItem('conciliacao_data', JSON.stringify(records));
+    
+    toast.success('Empenho salvo com sucesso!');
+    handleLimpar();
+  };
+
+  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      const url = URL.createObjectURL(file);
+      setPdfUrl(url);
+      setIsPdfOpen(true);
+    } else {
+      toast.error('Por favor, selecione um arquivo PDF válido');
+    }
+    event.target.value = '';
   };
 
   return (
@@ -48,6 +164,8 @@ const CadastrarEmpenhados = () => {
                 </div>
                 <Input 
                   placeholder="Número do Empenho" 
+                  value={formData.numeroEmpenho}
+                  onChange={(e) => handleInputChange('numeroEmpenho', e.target.value)}
                   className="max-w-xs border-0 border-b-2 border-primary/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                 />
               </div>
@@ -69,6 +187,8 @@ const CadastrarEmpenhados = () => {
                     placeholder="Valor R$" 
                     type="number" 
                     step="0.01"
+                    value={formData.valor}
+                    onChange={(e) => handleInputChange('valor', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
@@ -79,6 +199,8 @@ const CadastrarEmpenhados = () => {
                   </div>
                   <Input 
                     placeholder="Processo administrativo" 
+                    value={formData.processoAdm}
+                    onChange={(e) => handleInputChange('processoAdm', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
@@ -88,7 +210,7 @@ const CadastrarEmpenhados = () => {
                   <div className="flex gap-4 flex-1">
                     <div className="flex-1 space-y-1">
                       <label className="text-xs font-medium text-muted-foreground">Mês Lançamento</label>
-                      <Select>
+                      <Select value={formData.mesLancamento} onValueChange={(v) => handleInputChange('mesLancamento', v)}>
                         <SelectTrigger className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus:ring-0 focus:border-primary bg-transparent transition-colors">
                           <SelectValue placeholder="---------- de ----" />
                         </SelectTrigger>
@@ -103,7 +225,7 @@ const CadastrarEmpenhados = () => {
                     </div>
                     <div className="flex-1 space-y-1">
                       <label className="text-xs font-medium text-muted-foreground">Mês Liquidado</label>
-                      <Select>
+                      <Select value={formData.mesLiquidado} onValueChange={(v) => handleInputChange('mesLiquidado', v)}>
                         <SelectTrigger className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus:ring-0 focus:border-primary bg-transparent transition-colors">
                           <SelectValue placeholder="---------- de ----" />
                         </SelectTrigger>
@@ -127,13 +249,15 @@ const CadastrarEmpenhados = () => {
                     placeholder="Valor da Baixa R$" 
                     type="number" 
                     step="0.01"
+                    value={formData.valorBaixa}
+                    onChange={(e) => handleInputChange('valorBaixa', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8" />
-                  <Select>
+                  <Select value={formData.condicao} onValueChange={(v) => handleInputChange('condicao', v)}>
                     <SelectTrigger className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus:ring-0 focus:border-primary bg-transparent transition-colors">
                       <SelectValue placeholder="CONDIÇÃO" />
                     </SelectTrigger>
@@ -160,6 +284,8 @@ const CadastrarEmpenhados = () => {
                   </div>
                   <Input 
                     placeholder="Reempenhado" 
+                    value={formData.reempenhado}
+                    onChange={(e) => handleInputChange('reempenhado', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
@@ -170,6 +296,8 @@ const CadastrarEmpenhados = () => {
                   </div>
                   <Input 
                     placeholder="Fornecedor" 
+                    value={formData.fornecedor}
+                    onChange={(e) => handleInputChange('fornecedor', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
@@ -182,7 +310,8 @@ const CadastrarEmpenhados = () => {
                     <label className="text-xs font-medium text-muted-foreground">Data do Empenho</label>
                     <Input 
                       type="date"
-                      defaultValue="2026-01-09"
+                      value={formData.dataEmpenho}
+                      onChange={(e) => handleInputChange('dataEmpenho', e.target.value)}
                       className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                     />
                   </div>
@@ -190,7 +319,7 @@ const CadastrarEmpenhados = () => {
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8" />
-                  <Select>
+                  <Select value={formData.contaCategoria} onValueChange={(v) => handleInputChange('contaCategoria', v)}>
                     <SelectTrigger className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus:ring-0 focus:border-primary bg-transparent transition-colors">
                       <SelectValue placeholder="CONTA CATEGORIA" />
                     </SelectTrigger>
@@ -210,6 +339,8 @@ const CadastrarEmpenhados = () => {
                   </div>
                   <Input 
                     placeholder="Contrato" 
+                    value={formData.contrato}
+                    onChange={(e) => handleInputChange('contrato', e.target.value)}
                     className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary bg-transparent transition-colors"
                   />
                 </div>
@@ -223,6 +354,8 @@ const CadastrarEmpenhados = () => {
               </div>
               <Textarea 
                 placeholder="Observações..." 
+                value={formData.observacao}
+                onChange={(e) => handleInputChange('observacao', e.target.value)}
                 className="min-h-[120px] border-2 border-muted/30 rounded-xl focus-visible:border-primary focus-visible:ring-0 bg-muted/10 transition-colors"
               />
             </div>
@@ -237,7 +370,10 @@ const CadastrarEmpenhados = () => {
                 LIMPAR
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <Button className="min-w-[120px] bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all gap-2">
+              <Button 
+                onClick={handleSalvar}
+                className="min-w-[120px] bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all gap-2"
+              >
                 SALVAR
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -259,6 +395,29 @@ const CadastrarEmpenhados = () => {
           </CardContent>
         </Card>
       </main>
+
+      {/* Floating PDF Button */}
+      <input
+        type="file"
+        accept="application/pdf"
+        ref={pdfInputRef}
+        onChange={handlePdfUpload}
+        className="hidden"
+      />
+      <Button
+        onClick={() => pdfInputRef.current?.click()}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary hover:bg-primary/90 shadow-xl hover:shadow-2xl transition-all z-40"
+        size="icon"
+      >
+        <FileText className="h-6 w-6" />
+      </Button>
+
+      {/* Floating PDF Viewer */}
+      <FloatingPdfViewer
+        isOpen={isPdfOpen}
+        onClose={() => setIsPdfOpen(false)}
+        pdfUrl={pdfUrl}
+      />
     </div>
   );
 };

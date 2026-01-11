@@ -323,12 +323,30 @@ const CadastrarEmpenhados = () => {
                     <SelectTrigger className="border-0 border-b-2 border-muted/50 rounded-none px-0 focus:ring-0 focus:border-primary bg-transparent transition-colors">
                       <SelectValue placeholder="CONTA CATEGORIA" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1.2.3.1.1.01.01">1.2.3.1.1.01.01 - Aparelhos de Medição</SelectItem>
-                      <SelectItem value="1.2.3.1.1.01.02">1.2.3.1.1.01.02 - Aparelhos e Equipamentos de Comunicação</SelectItem>
-                      <SelectItem value="1.2.3.1.1.01.03">1.2.3.1.1.01.03 - Equipamentos de TI</SelectItem>
-                      <SelectItem value="1.2.3.1.1.01.04">1.2.3.1.1.01.04 - Mobiliário em Geral</SelectItem>
-                      <SelectItem value="1.2.3.1.1.01.05">1.2.3.1.1.01.05 - Veículos</SelectItem>
+                    <SelectContent className="max-h-[300px]">
+                      <SelectItem value="1.2.3.1.1.01.01">1.2.3.1.1.01.01 - APARELHOS DE MEDIÇÃO E ORIENTAÇÃO</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.02">1.2.3.1.1.01.02 - APARELHOS E EQUIPAMENTOS DE COMUNICAÇÃO</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.03">1.2.3.1.1.01.03 - APARELHOS EQUIPAMENTOS E UTENSÍLIOS MÉDICOS ODONTOLÓGICOS LABORATORIAIS E HOSPITALARES</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.04">1.2.3.1.1.01.04 - APARELHOS E EQUIPAMENTOS PARA ESPORTES E DIVERSÕES</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.05">1.2.3.1.1.01.05 - EQUIPAMENTO DE PROTEÇÃO SEGURANÇA E SOCORRO</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.06">1.2.3.1.1.01.06 - MÁQUINAS E EQUIPAMENTOS DE NATUREZA INDUSTRIAL</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.07">1.2.3.1.1.01.07 - MÁQUINAS E EQUIPAMENTOS ENERGÉTICOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.09">1.2.3.1.1.01.09 - MÁQUINAS E FERRAMENTAS E UTENSÍLIOS DE OFICINA</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.21">1.2.3.1.1.01.21 - EQUIPAMENTOS E UTENSÍLIOS HIDRÁULICOS E ELÉTRICOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.01.99">1.2.3.1.1.01.99 - OUTRAS MÁQUINAS APARELHOS EQUIPAMENTOS E FERRAMENTAS / MÁQUINAS, UTENSÍLIOS E EQUIPAMENTOS DIVERSOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.02.01">1.2.3.1.1.02.01 - EQUIPAMENTOS DE PROCESSAMENTO DE DADOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.03.01">1.2.3.1.1.03.01 - APARELHOS E UTENSÍLIOS DOMÉSTICOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.03.02">1.2.3.1.1.03.02 - MÁQUINAS INSTALAÇÕES E UTENSÍLIOS DE ESCRITÓRIO</SelectItem>
+                      <SelectItem value="1.2.3.1.1.03.03">1.2.3.1.1.03.03 - MOBILIÁRIO EM GERAL</SelectItem>
+                      <SelectItem value="1.2.3.1.1.03.04">1.2.3.1.1.03.04 - UTENSÍLIOS EM GERAL</SelectItem>
+                      <SelectItem value="1.2.3.1.1.04.01">1.2.3.1.1.04.01 - BANDEIRAS FLÂMULAS E INSÍGNIAS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.04.02">1.2.3.1.1.04.02 - COLEÇÕES E MATERIAIS BIBLIOGRÁFICOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.04.04">1.2.3.1.1.04.04 - INSTRUMENTOS MUSICAIS E ARTÍSTICOS</SelectItem>
+                      <SelectItem value="1.2.3.1.1.04.05">1.2.3.1.1.04.05 - EQUIPAMENTOS PARA ÁUDIO VÍDEO E FOTO</SelectItem>
+                      <SelectItem value="1.2.3.1.1.05.01">1.2.3.1.1.05.01 - VEÍCULOS EM GERAL</SelectItem>
+                      <SelectItem value="1.2.3.1.1.05.03">1.2.3.1.1.05.03 - VEÍCULOS DE TRAÇÃO MECÂNICA</SelectItem>
+                      <SelectItem value="1.2.3.1.1.99.08">1.2.3.1.1.99.08 - BENS MÓVEIS A CLASSIFICAR</SelectItem>
+                      <SelectItem value="1.2.3.1.1.99.99">1.2.3.1.1.99.99 - OUTROS BENS MÓVEIS / OUTROS MATERIAIS PERMANENTES</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, User, ChevronRight, FileText } from "lucide-react";
+import { ArrowLeft, Plus, User, ChevronRight, FileText, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import FloatingPdfViewer from "@/components/FloatingPdfViewer";
 import { validateEmpenhoForm } from "@/lib/validationSchemas";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FormData {
   numeroEmpenho: string;
@@ -29,7 +31,9 @@ interface FormData {
 
 const CadastrarEmpenhados = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
@@ -73,7 +77,7 @@ const CadastrarEmpenhados = () => {
     toast.success('Formulário limpo!');
   };
 
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     // Validate form data using Zod schema
     const validation = validateEmpenhoForm(formData);
     
@@ -84,51 +88,53 @@ const CadastrarEmpenhados = () => {
       return;
     }
 
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
-    
-    // Sanitize data before storing
-    const sanitizedData = {
-      numeroEmpenho: formData.numeroEmpenho.trim().slice(0, 50),
-      bensEmpenhados: '',
-      valores: formData.valor.trim(),
-      dataEmpenho: formData.dataEmpenho,
-      processoAdm: formData.processoAdm.trim().slice(0, 100),
-      valorBaixa: formData.valorBaixa.trim(),
-      saldoNaoLiquidados: '',
-      baixaDataNota: '',
-      contaCategoria: formData.contaCategoria.slice(0, 200),
-      observacao: formData.observacao.trim().slice(0, 1000),
-      dataLancamento: formData.mesLancamento.slice(0, 20),
-      dataLiquidado: formData.mesLiquidado.slice(0, 20),
-      condicao: formData.condicao.slice(0, 50),
-      dataLancamentoPlanilha: dataAtual,
-      prioridadeAnteriores: '',
-      valorBaixaReal: '',
-      numeroContrato: formData.contrato.trim().slice(0, 50),
-      numeroReempenho: formData.reempenhado.trim().slice(0, 50)
-    };
-
-    // Get existing records from localStorage
-    const existingData = localStorage.getItem('conciliacao_data');
-    let records = [];
-    
-    if (existingData) {
-      try {
-        records = JSON.parse(existingData);
-        // Validate that records is an array
-        if (!Array.isArray(records)) {
-          records = [];
-        }
-      } catch {
-        records = [];
-      }
+    if (!user) {
+      toast.error('Você precisa estar logado para salvar registros');
+      return;
     }
 
-    records.push(sanitizedData);
-    localStorage.setItem('conciliacao_data', JSON.stringify(records));
+    setIsSaving(true);
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
     
-    toast.success('Empenho salvo com sucesso!');
-    handleLimpar();
+    try {
+      // Insert into database
+      const { error } = await supabase
+        .from('conciliacao_records')
+        .insert({
+          numero_empenho: formData.numeroEmpenho.trim().slice(0, 50),
+          bens_empenhados: '',
+          valores: formData.valor.trim(),
+          data_empenho: formData.dataEmpenho || null,
+          processo_adm: formData.processoAdm.trim().slice(0, 100),
+          valor_baixa: formData.valorBaixa.trim(),
+          saldo_nao_liquidados: '',
+          baixa_data_nota: '',
+          conta_categoria: formData.contaCategoria.slice(0, 200),
+          observacao: formData.observacao.trim().slice(0, 1000),
+          data_lancamento: formData.mesLancamento.slice(0, 20),
+          data_liquidado: formData.mesLiquidado.slice(0, 20),
+          condicao: formData.condicao.slice(0, 50),
+          data_lancamento_planilha: dataAtual,
+          prioridade_anteriores: '',
+          valor_baixa_real: '',
+          numero_contrato: formData.contrato.trim().slice(0, 50),
+          numero_reempenho: formData.reempenhado.trim().slice(0, 50),
+          created_by: user.id
+        });
+
+      if (error) {
+        console.error('Database error:', error);
+        toast.error('Erro ao salvar: ' + error.message);
+      } else {
+        toast.success('Empenho salvo com sucesso!');
+        handleLimpar();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('Erro inesperado ao salvar');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,10 +407,11 @@ const CadastrarEmpenhados = () => {
               </Button>
               <Button 
                 onClick={handleSalvar}
+                disabled={isSaving}
                 className="min-w-[120px] bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all gap-2"
               >
-                SALVAR
-                <ChevronRight className="h-4 w-4" />
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'SALVAR'}
+                {!isSaving && <ChevronRight className="h-4 w-4" />}
               </Button>
               <Button 
                 variant="outline" 

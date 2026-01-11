@@ -14,16 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conciliacao_records: {
+        Row: {
+          baixa_data_nota: string | null
+          bens_empenhados: string | null
+          condicao: string | null
+          conta_categoria: string | null
+          created_at: string | null
+          created_by: string | null
+          data_empenho: string | null
+          data_lancamento: string | null
+          data_lancamento_planilha: string | null
+          data_liquidado: string | null
+          id: string
+          numero_contrato: string | null
+          numero_empenho: string
+          numero_reempenho: string | null
+          observacao: string | null
+          prioridade_anteriores: string | null
+          processo_adm: string | null
+          saldo_nao_liquidados: string | null
+          updated_at: string | null
+          valor_baixa: string | null
+          valor_baixa_real: string | null
+          valores: string | null
+        }
+        Insert: {
+          baixa_data_nota?: string | null
+          bens_empenhados?: string | null
+          condicao?: string | null
+          conta_categoria?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_empenho?: string | null
+          data_lancamento?: string | null
+          data_lancamento_planilha?: string | null
+          data_liquidado?: string | null
+          id?: string
+          numero_contrato?: string | null
+          numero_empenho: string
+          numero_reempenho?: string | null
+          observacao?: string | null
+          prioridade_anteriores?: string | null
+          processo_adm?: string | null
+          saldo_nao_liquidados?: string | null
+          updated_at?: string | null
+          valor_baixa?: string | null
+          valor_baixa_real?: string | null
+          valores?: string | null
+        }
+        Update: {
+          baixa_data_nota?: string | null
+          bens_empenhados?: string | null
+          condicao?: string | null
+          conta_categoria?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_empenho?: string | null
+          data_lancamento?: string | null
+          data_lancamento_planilha?: string | null
+          data_liquidado?: string | null
+          id?: string
+          numero_contrato?: string | null
+          numero_empenho?: string
+          numero_reempenho?: string | null
+          observacao?: string | null
+          prioridade_anteriores?: string | null
+          processo_adm?: string | null
+          saldo_nao_liquidados?: string | null
+          updated_at?: string | null
+          valor_baixa?: string | null
+          valor_baixa_real?: string | null
+          valores?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          display_name: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +275,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

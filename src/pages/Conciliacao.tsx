@@ -3,30 +3,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Download, Upload, ArrowUpDown, FileSpreadsheet, Search } from "lucide-react";
+import { ArrowLeft, Download, Upload, ArrowUpDown, FileSpreadsheet, Search, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ConciliacaoRecord {
-  numeroEmpenho: string;
-  bensEmpenhados: string;
+  id: string;
+  numero_empenho: string;
+  bens_empenhados: string;
   valores: string;
-  dataEmpenho: string;
-  processoAdm: string;
-  valorBaixa: string;
-  saldoNaoLiquidados: string;
-  baixaDataNota: string;
-  contaCategoria: string;
+  data_empenho: string | null;
+  processo_adm: string;
+  valor_baixa: string;
+  saldo_nao_liquidados: string;
+  baixa_data_nota: string;
+  conta_categoria: string;
   observacao: string;
-  dataLancamento: string;
-  dataLiquidado: string;
+  data_lancamento: string;
+  data_liquidado: string;
   condicao: string;
-  dataLancamentoPlanilha: string;
-  prioridadeAnteriores: string;
-  valorBaixaReal: string;
-  numeroContrato: string;
-  numeroReempenho: string;
+  data_lancamento_planilha: string;
+  prioridade_anteriores: string;
+  valor_baixa_real: string;
+  numero_contrato: string;
+  numero_reempenho: string;
 }
 
 const CSV_HEADERS = [
@@ -52,24 +55,39 @@ const CSV_HEADERS = [
 
 const Conciliacao = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [records, setRecords] = useState<ConciliacaoRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortColumn, setSortColumn] = useState<keyof ConciliacaoRecord | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    loadFromLocalStorage();
+    loadFromDatabase();
   }, []);
 
-  const loadFromLocalStorage = () => {
-    const data = localStorage.getItem('conciliacao_data');
-    if (data) {
-      try {
-        setRecords(JSON.parse(data));
-      } catch {
+  const loadFromDatabase = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('conciliacao_records')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading records:', error);
+        toast.error('Erro ao carregar registros');
         setRecords([]);
+      } else {
+        setRecords(data || []);
       }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('Erro inesperado ao carregar dados');
+      setRecords([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,13 +104,13 @@ const Conciliacao = () => {
     if (!sortColumn) return 0;
     const aVal = a[sortColumn] || '';
     const bVal = b[sortColumn] || '';
-    const comparison = aVal.localeCompare(bVal, 'pt-BR', { numeric: true });
+    const comparison = String(aVal).localeCompare(String(bVal), 'pt-BR', { numeric: true });
     return sortDirection === 'asc' ? comparison : -comparison;
   });
 
   const filteredRecords = sortedRecords.filter(record =>
     Object.values(record).some(value =>
-      value?.toLowerCase().includes(searchTerm.toLowerCase())
+      String(value || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
@@ -100,24 +118,24 @@ const Conciliacao = () => {
     const csvContent = [
       CSV_HEADERS.join(';'),
       ...records.map(record => [
-        record.numeroEmpenho,
-        record.bensEmpenhados,
+        record.numero_empenho,
+        record.bens_empenhados,
         record.valores,
-        record.dataEmpenho,
-        record.processoAdm,
-        record.valorBaixa,
-        record.saldoNaoLiquidados,
-        record.baixaDataNota,
-        record.contaCategoria,
+        record.data_empenho,
+        record.processo_adm,
+        record.valor_baixa,
+        record.saldo_nao_liquidados,
+        record.baixa_data_nota,
+        record.conta_categoria,
         record.observacao,
-        record.dataLancamento,
-        record.dataLiquidado,
+        record.data_lancamento,
+        record.data_liquidado,
         record.condicao,
-        record.dataLancamentoPlanilha,
-        record.prioridadeAnteriores,
-        record.valorBaixaReal,
-        record.numeroContrato,
-        record.numeroReempenho
+        record.data_lancamento_planilha,
+        record.prioridade_anteriores,
+        record.valor_baixa_real,
+        record.numero_contrato,
+        record.numero_reempenho
       ].join(';'))
     ].join('\n');
 
@@ -129,12 +147,17 @@ const Conciliacao = () => {
     toast.success('Arquivo CSV baixado com sucesso!');
   };
 
-  const handleUploadCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (!user) {
+      toast.error('Você precisa estar logado para importar dados');
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const text = e.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
@@ -144,34 +167,50 @@ const Conciliacao = () => {
           return;
         }
 
-        const newRecords: ConciliacaoRecord[] = lines.slice(1).map(line => {
+        const newRecords = lines.slice(1).map(line => {
           const values = line.split(';');
           return {
-            numeroEmpenho: values[0] || '',
-            bensEmpenhados: values[1] || '',
-            valores: values[2] || '',
-            dataEmpenho: values[3] || '',
-            processoAdm: values[4] || '',
-            valorBaixa: values[5] || '',
-            saldoNaoLiquidados: values[6] || '',
-            baixaDataNota: values[7] || '',
-            contaCategoria: values[8] || '',
-            observacao: values[9] || '',
-            dataLancamento: values[10] || '',
-            dataLiquidado: values[11] || '',
-            condicao: values[12] || '',
-            dataLancamentoPlanilha: values[13] || '',
-            prioridadeAnteriores: values[14] || '',
-            valorBaixaReal: values[15] || '',
-            numeroContrato: values[16] || '',
-            numeroReempenho: values[17] || ''
+            numero_empenho: (values[0] || '').trim().slice(0, 50),
+            bens_empenhados: (values[1] || '').trim().slice(0, 500),
+            valores: (values[2] || '').trim().slice(0, 50),
+            data_empenho: values[3] ? values[3].trim() : null,
+            processo_adm: (values[4] || '').trim().slice(0, 100),
+            valor_baixa: (values[5] || '').trim().slice(0, 50),
+            saldo_nao_liquidados: (values[6] || '').trim().slice(0, 50),
+            baixa_data_nota: (values[7] || '').trim().slice(0, 50),
+            conta_categoria: (values[8] || '').trim().slice(0, 200),
+            observacao: (values[9] || '').trim().slice(0, 1000),
+            data_lancamento: (values[10] || '').trim().slice(0, 20),
+            data_liquidado: (values[11] || '').trim().slice(0, 20),
+            condicao: (values[12] || '').trim().slice(0, 50),
+            data_lancamento_planilha: (values[13] || '').trim().slice(0, 50),
+            prioridade_anteriores: (values[14] || '').trim().slice(0, 50),
+            valor_baixa_real: (values[15] || '').trim().slice(0, 50),
+            numero_contrato: (values[16] || '').trim().slice(0, 50),
+            numero_reempenho: (values[17] || '').trim().slice(0, 50),
+            created_by: user.id
           };
-        });
+        }).filter(record => record.numero_empenho); // Filter out empty records
 
-        setRecords(newRecords);
-        localStorage.setItem('conciliacao_data', JSON.stringify(newRecords));
-        toast.success(`${newRecords.length} registros carregados com sucesso!`);
-      } catch {
+        if (newRecords.length === 0) {
+          toast.error('Nenhum registro válido encontrado no CSV');
+          return;
+        }
+
+        // Insert records into database
+        const { error } = await supabase
+          .from('conciliacao_records')
+          .insert(newRecords);
+
+        if (error) {
+          console.error('Error inserting records:', error);
+          toast.error('Erro ao importar registros: ' + error.message);
+        } else {
+          toast.success(`${newRecords.length} registros importados com sucesso!`);
+          loadFromDatabase(); // Reload data
+        }
+      } catch (error) {
+        console.error('Error processing CSV:', error);
         toast.error('Erro ao processar arquivo CSV');
       }
     };
@@ -253,70 +292,76 @@ const Conciliacao = () => {
           </CardHeader>
           
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-primary/5">
-                    <SortableHeader column="numeroEmpenho" label="Nº Empenho" />
-                    <SortableHeader column="bensEmpenhados" label="Bens Emp. Não Liq." />
-                    <SortableHeader column="valores" label="Valores" />
-                    <SortableHeader column="dataEmpenho" label="Dt. Emp." />
-                    <SortableHeader column="processoAdm" label="Proc. Adm" />
-                    <SortableHeader column="valorBaixa" label="Valor Baixa" />
-                    <SortableHeader column="saldoNaoLiquidados" label="Saldo Não Liq." />
-                    <SortableHeader column="baixaDataNota" label="Baixa: Data Nota" />
-                    <SortableHeader column="contaCategoria" label="Conta/Categoria" />
-                    <SortableHeader column="observacao" label="Obs" />
-                    <SortableHeader column="dataLancamento" label="Data Lanç." />
-                    <SortableHeader column="dataLiquidado" label="Data Liquidado" />
-                    <SortableHeader column="condicao" label="Condição" />
-                    <SortableHeader column="dataLancamentoPlanilha" label="Data Lanç. Planilha" />
-                    <SortableHeader column="prioridadeAnteriores" label="Prio. Ant. Liq." />
-                    <SortableHeader column="valorBaixaReal" label="Valor Baixa Real" />
-                    <SortableHeader column="numeroContrato" label="Nº Contrato" />
-                    <SortableHeader column="numeroReempenho" label="Nº Reempenho" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRecords.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={18} className="text-center py-12 text-muted-foreground">
-                        <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                        <p className="text-lg">Nenhum registro encontrado</p>
-                        <p className="text-sm mt-1">Adicione registros pelo Cadastro de Empenhados ou carregue um arquivo CSV</p>
-                      </TableCell>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-primary/5">
+                      <SortableHeader column="numero_empenho" label="Nº Empenho" />
+                      <SortableHeader column="bens_empenhados" label="Bens Emp. Não Liq." />
+                      <SortableHeader column="valores" label="Valores" />
+                      <SortableHeader column="data_empenho" label="Dt. Emp." />
+                      <SortableHeader column="processo_adm" label="Proc. Adm" />
+                      <SortableHeader column="valor_baixa" label="Valor Baixa" />
+                      <SortableHeader column="saldo_nao_liquidados" label="Saldo Não Liq." />
+                      <SortableHeader column="baixa_data_nota" label="Baixa: Data Nota" />
+                      <SortableHeader column="conta_categoria" label="Conta/Categoria" />
+                      <SortableHeader column="observacao" label="Obs" />
+                      <SortableHeader column="data_lancamento" label="Data Lanç." />
+                      <SortableHeader column="data_liquidado" label="Data Liquidado" />
+                      <SortableHeader column="condicao" label="Condição" />
+                      <SortableHeader column="data_lancamento_planilha" label="Data Lanç. Planilha" />
+                      <SortableHeader column="prioridade_anteriores" label="Prio. Ant. Liq." />
+                      <SortableHeader column="valor_baixa_real" label="Valor Baixa Real" />
+                      <SortableHeader column="numero_contrato" label="Nº Contrato" />
+                      <SortableHeader column="numero_reempenho" label="Nº Reempenho" />
                     </TableRow>
-                  ) : (
-                    filteredRecords.map((record, index) => (
-                      <TableRow key={index} className="hover:bg-primary/5 transition-colors">
-                        <TableCell className="font-medium">{record.numeroEmpenho}</TableCell>
-                        <TableCell>{record.bensEmpenhados}</TableCell>
-                        <TableCell>{record.valores}</TableCell>
-                        <TableCell>{record.dataEmpenho}</TableCell>
-                        <TableCell>{record.processoAdm}</TableCell>
-                        <TableCell>{record.valorBaixa}</TableCell>
-                        <TableCell>{record.saldoNaoLiquidados}</TableCell>
-                        <TableCell>{record.baixaDataNota}</TableCell>
-                        <TableCell>{record.contaCategoria}</TableCell>
-                        <TableCell className="max-w-[200px] truncate" title={record.observacao}>{record.observacao}</TableCell>
-                        <TableCell>{record.dataLancamento}</TableCell>
-                        <TableCell>{record.dataLiquidado}</TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
-                            {record.condicao}
-                          </span>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRecords.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={18} className="text-center py-12 text-muted-foreground">
+                          <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                          <p className="text-lg">Nenhum registro encontrado</p>
+                          <p className="text-sm mt-1">Adicione registros pelo Cadastro de Empenhados ou carregue um arquivo CSV</p>
                         </TableCell>
-                        <TableCell>{record.dataLancamentoPlanilha}</TableCell>
-                        <TableCell>{record.prioridadeAnteriores}</TableCell>
-                        <TableCell>{record.valorBaixaReal}</TableCell>
-                        <TableCell>{record.numeroContrato}</TableCell>
-                        <TableCell>{record.numeroReempenho}</TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : (
+                      filteredRecords.map((record) => (
+                        <TableRow key={record.id} className="hover:bg-primary/5 transition-colors">
+                          <TableCell className="font-medium">{record.numero_empenho}</TableCell>
+                          <TableCell>{record.bens_empenhados}</TableCell>
+                          <TableCell>{record.valores}</TableCell>
+                          <TableCell>{record.data_empenho}</TableCell>
+                          <TableCell>{record.processo_adm}</TableCell>
+                          <TableCell>{record.valor_baixa}</TableCell>
+                          <TableCell>{record.saldo_nao_liquidados}</TableCell>
+                          <TableCell>{record.baixa_data_nota}</TableCell>
+                          <TableCell>{record.conta_categoria}</TableCell>
+                          <TableCell className="max-w-[200px] truncate" title={record.observacao}>{record.observacao}</TableCell>
+                          <TableCell>{record.data_lancamento}</TableCell>
+                          <TableCell>{record.data_liquidado}</TableCell>
+                          <TableCell>
+                            <span className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+                              {record.condicao}
+                            </span>
+                          </TableCell>
+                          <TableCell>{record.data_lancamento_planilha}</TableCell>
+                          <TableCell>{record.prioridade_anteriores}</TableCell>
+                          <TableCell>{record.valor_baixa_real}</TableCell>
+                          <TableCell>{record.numero_contrato}</TableCell>
+                          <TableCell>{record.numero_reempenho}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
             
             {records.length > 0 && (
               <div className="p-4 border-t border-border/50 bg-muted/20">

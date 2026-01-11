@@ -1,7 +1,15 @@
-import { Settings, ChevronDown, Plus } from "lucide-react";
+import { Settings, ChevronDown, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { label: "Dashboard", href: "/" },
@@ -13,11 +21,21 @@ const navItems = [
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
   };
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success('Logout realizado com sucesso!');
+    navigate('/login');
+  };
+
+  const displayName = user?.email?.split('@')[0] || 'Usuário';
 
   return (
     <header className="bg-primary text-primary-foreground px-6 py-3 flex items-center justify-between">
@@ -48,10 +66,23 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2 text-sm">
-          <span>Olá, Administrador</span>
-          <ChevronDown className="w-4 h-4" />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="hidden sm:flex items-center gap-2 text-sm text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <span>Olá, {displayName}</span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           variant="ghost"
           size="icon"

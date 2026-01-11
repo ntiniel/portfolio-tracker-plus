@@ -14,8 +14,9 @@ import {
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Itens", href: "/itens" },
+  { label: "Conciliação", href: "/conciliacao" },
+  { label: "BD2026", href: "/bens-patrimoniais" },
   { label: "Reconciliação", href: "/reconciliacao" },
-  { label: "Auditoria", href: "#" },
   { label: "Relatórios", href: "#" },
 ];
 

@@ -13,6 +13,7 @@ import Conciliacao from "./pages/Conciliacao";
 import CadastrarEmpenhados from "./pages/CadastrarEmpenhados";
 import CadastrarRegistroBens from "./pages/CadastrarRegistroBens";
 import CadastrarIncorporacao from "./pages/CadastrarIncorporacao";
+import BensPatrimoniais from "./pages/BensPatrimoniais";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -65,6 +66,11 @@ const App = () => (
             <Route path="/cadastrar-incorporacao" element={
               <ProtectedRoute>
                 <CadastrarIncorporacao />
+              </ProtectedRoute>
+            } />
+            <Route path="/bens-patrimoniais" element={
+              <ProtectedRoute>
+                <BensPatrimoniais />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

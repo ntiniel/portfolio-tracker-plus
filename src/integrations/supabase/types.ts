@@ -14,6 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
+      bens_patrimoniais: {
+        Row: {
+          caixa_arquivo: string | null
+          categoria: string | null
+          cecam: string | null
+          condicao: string | null
+          created_at: string | null
+          created_by: string | null
+          data_arquivamento: string | null
+          data_lancamento: string | null
+          data_liquidado: string | null
+          data_nf: string | null
+          data_pasta: string | null
+          data_planilha: string | null
+          data_recebimento_nf_liquidacao: string | null
+          doador: string | null
+          empenho: string
+          equipamento_material: string
+          fim_patrimoniamento: string | null
+          fotos: string | null
+          id: string
+          inicio_patrimoniamento: string | null
+          item: string | null
+          local: string | null
+          n_nota: string | null
+          numero_patrimonio: string | null
+          numero_processo: string | null
+          obs: string | null
+          obs_pastas: string | null
+          pasta: string | null
+          quantidade: number | null
+          reempenho: string | null
+          secretaria: string | null
+          sequencia: number
+          serie: string | null
+          status: string | null
+          updated_at: string | null
+          valor_bem: number | null
+        }
+        Insert: {
+          caixa_arquivo?: string | null
+          categoria?: string | null
+          cecam?: string | null
+          condicao?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_arquivamento?: string | null
+          data_lancamento?: string | null
+          data_liquidado?: string | null
+          data_nf?: string | null
+          data_pasta?: string | null
+          data_planilha?: string | null
+          data_recebimento_nf_liquidacao?: string | null
+          doador?: string | null
+          empenho: string
+          equipamento_material: string
+          fim_patrimoniamento?: string | null
+          fotos?: string | null
+          id?: string
+          inicio_patrimoniamento?: string | null
+          item?: string | null
+          local?: string | null
+          n_nota?: string | null
+          numero_patrimonio?: string | null
+          numero_processo?: string | null
+          obs?: string | null
+          obs_pastas?: string | null
+          pasta?: string | null
+          quantidade?: number | null
+          reempenho?: string | null
+          secretaria?: string | null
+          sequencia?: number
+          serie?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valor_bem?: number | null
+        }
+        Update: {
+          caixa_arquivo?: string | null
+          categoria?: string | null
+          cecam?: string | null
+          condicao?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_arquivamento?: string | null
+          data_lancamento?: string | null
+          data_liquidado?: string | null
+          data_nf?: string | null
+          data_pasta?: string | null
+          data_planilha?: string | null
+          data_recebimento_nf_liquidacao?: string | null
+          doador?: string | null
+          empenho?: string
+          equipamento_material?: string
+          fim_patrimoniamento?: string | null
+          fotos?: string | null
+          id?: string
+          inicio_patrimoniamento?: string | null
+          item?: string | null
+          local?: string | null
+          n_nota?: string | null
+          numero_patrimonio?: string | null
+          numero_processo?: string | null
+          obs?: string | null
+          obs_pastas?: string | null
+          pasta?: string | null
+          quantidade?: number | null
+          reempenho?: string | null
+          secretaria?: string | null
+          sequencia?: number
+          serie?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valor_bem?: number | null
+        }
+        Relationships: []
+      }
       conciliacao_records: {
         Row: {
           baixa_data_nota: string | null

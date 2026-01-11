@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import FloatingPdfViewer from "@/components/FloatingPdfViewer";
+import { validateEmpenhoForm } from "@/lib/validationSchemas";
 
 interface FormData {
   numeroEmpenho: string;
@@ -73,32 +74,38 @@ const CadastrarEmpenhados = () => {
   };
 
   const handleSalvar = () => {
-    if (!formData.numeroEmpenho) {
-      toast.error('Por favor, informe o número do empenho');
+    // Validate form data using Zod schema
+    const validation = validateEmpenhoForm(formData);
+    
+    if (!validation.success) {
+      // Show first validation error
+      const firstError = Object.values(validation.errors)[0];
+      toast.error(firstError || 'Por favor, corrija os erros no formulário');
       return;
     }
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
     
-    const newRecord = {
-      numeroEmpenho: formData.numeroEmpenho,
+    // Sanitize data before storing
+    const sanitizedData = {
+      numeroEmpenho: formData.numeroEmpenho.trim().slice(0, 50),
       bensEmpenhados: '',
-      valores: formData.valor,
+      valores: formData.valor.trim(),
       dataEmpenho: formData.dataEmpenho,
-      processoAdm: formData.processoAdm,
-      valorBaixa: formData.valorBaixa,
+      processoAdm: formData.processoAdm.trim().slice(0, 100),
+      valorBaixa: formData.valorBaixa.trim(),
       saldoNaoLiquidados: '',
       baixaDataNota: '',
-      contaCategoria: formData.contaCategoria,
-      observacao: formData.observacao,
-      dataLancamento: formData.mesLancamento,
-      dataLiquidado: formData.mesLiquidado,
-      condicao: formData.condicao,
+      contaCategoria: formData.contaCategoria.slice(0, 200),
+      observacao: formData.observacao.trim().slice(0, 1000),
+      dataLancamento: formData.mesLancamento.slice(0, 20),
+      dataLiquidado: formData.mesLiquidado.slice(0, 20),
+      condicao: formData.condicao.slice(0, 50),
       dataLancamentoPlanilha: dataAtual,
       prioridadeAnteriores: '',
       valorBaixaReal: '',
-      numeroContrato: formData.contrato,
-      numeroReempenho: formData.reempenhado
+      numeroContrato: formData.contrato.trim().slice(0, 50),
+      numeroReempenho: formData.reempenhado.trim().slice(0, 50)
     };
 
     // Get existing records from localStorage
@@ -108,12 +115,16 @@ const CadastrarEmpenhados = () => {
     if (existingData) {
       try {
         records = JSON.parse(existingData);
+        // Validate that records is an array
+        if (!Array.isArray(records)) {
+          records = [];
+        }
       } catch {
         records = [];
       }
     }
 
-    records.push(newRecord);
+    records.push(sanitizedData);
     localStorage.setItem('conciliacao_data', JSON.stringify(records));
     
     toast.success('Empenho salvo com sucesso!');
